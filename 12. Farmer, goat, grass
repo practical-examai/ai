@@ -1,0 +1,88 @@
+:- dynamic true/1, does/2.
+role(farmer).
+init(left(cabbage)).
+init(left(goat)).
+init(left(wolf)).
+init(left(farmer)).
+init(step(1)).
+legal(farmer, boat(X)) :-
+true(left(farmer)),
+true(left(X)),
+X \== farmer.
+legal(farmer, boat(X)) :-
+true(right(farmer)),
+true(right(X)),
+X \== farmer.
+legal(farmer, boat(empty)).
+next(left(farmer)) :- true(right(farmer)).
+next(right(farmer)) :- true(left(farmer)).
+next(step(N)) :- true(step(M)), N is M + 1.
+next(left(X)) :-
+true(right(X)),
+does(farmer, boat(X)).
+next(right(X)) :-
+true(left(X)),
+does(farmer, boat(X)).
+next(left(X)) :-
+true(left(X)),
+does(farmer, boat(Y)),
+X \== Y,
+X \== farmer.
+next(right(X)) :-
+true(right(X)),
+does(farmer, boat(Y)),
+X \== Y,
+X \== farmer.
+goal(farmer, 100) :-
+true(right(cabbage)),
+true(right(goat)),
+true(right(wolf)),
+true(right(farmer)), !.
+goal(farmer, 0) :-
+true(left(cabbage)),
+true(left(goat)),
+true(right(farmer)), !.
+goal(farmer, 0) :-
+true(left(wolf)),
+true(left(goat)),
+true(right(farmer)), !.
+goal(farmer, 0) :-
+true(right(cabbage)),
+true(right(goat)),
+true(left(farmer)), !.
+goal(farmer, 0) :-
+true(right(wolf)),
+true(right(goat)),
+true(left(farmer)), !.
+goal(farmer, 0) :-
+true(step(8)), !.
+goal(farmer, 50).
+terminal :- goal(farmer, 100).
+terminal :- goal(farmer, 0).
+%% Heuristic predicate with auxilaries which are puzzle specific
+% Must always be higher than zero and monotonic (ie never decreasing)
+heuristic(State, [goal(farmer, Value)]) :-
+member(step(Step), State),
+countrights(State, 0, Rights),
+Value is Step + Rights.
+countrights([], Value, Value).
+countrights([right(Item)|State], Count, Value) :-
+Item \== farmer, !,
+CountInc is Count + 1,
+countrights(State, CountInc, Value).
+countrights([_|State], Count, Value) :-
+countrights(State, Count, Value).
+
+
+
+******************OUTPUT*************
+?- time(solve_dfs(Path)).
+Path = [
+does(farmer,boat(goat)),
+does(farmer,boat(empty)),
+does(farmer,boat(cabbage)),
+does(farmer,boat(goat)),
+does(farmer,boat(wolf)),
+does(farmer,boat(empty)),
+does(farmer,boat(goat))
+]
