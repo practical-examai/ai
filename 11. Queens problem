@@ -2,7 +2,7 @@
 :- use_rendering(chess).
 %% queens(+N, -Queens) is nondet.
 %%
-@param Queens is a list of column numbers for placing the queens.
+%@param Queens is a list of column numbers for placing the queens.
 % @author Richard A. O'Keefe (The Craft of Prolog)
 queens(N, Queens) :-
 length(Queens, N),
